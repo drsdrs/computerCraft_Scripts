@@ -52,6 +52,7 @@ function move(dir, force) -- force: if TRUE remove whats blocking
 			if force then
 				t.digUp()
 				t.attackUp()
+				-- TODO recheck for enemy or digable!!!!!
 			else
 				return false -- no can go
 			end
@@ -123,21 +124,47 @@ function goto(x, y, z, force)
 		if falseCnt>50 then return print("no can do!") end
 		falseCnt = falseCnt+1
 	end
-	
-	print(x~=position[0], " ",y~=position[1]," " , z~=position[2]) 
-	return x.." - "..y.." - "..z
 end
 
 function moveFlat(dir)
-	while move(3)~=false do end
+	while move(5)~=false do t.attack() end
+	while move(dir)==false do
+		t.attack()
+		move(4)
+	end
+	t.attack()
+end
+
+function nextItem(item)
+	
 end
 
 -- setup --
 setPos(0,0,0)
 
+function dig()
+	for y=0, 20 do
+		move(4, true)
+		move(3, true)
+		move(5, true)
+		move(5, true)
+		move(1, true)
+		move(1, true)
+		move(4, true)
+		move(4, true)
+		move(3, true)
+		move(5, true)
+		move(0, true)
+	end
+end
 
-//print(goto(20,20,0, true))
-//rotate(0)
+--goto(6,0,0, true)
+--dig()
+--goto(12,0,0, true)
+--dig()
+goto(-15,-15,0, true)
 
-moveFlat()
+getPos()
+
+rotate(0)
 
