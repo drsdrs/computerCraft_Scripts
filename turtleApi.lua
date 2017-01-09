@@ -38,42 +38,48 @@ function forward()
 end
 
 function move(dir, force) -- force: if TRUE remove whats blocking
+	if dir>5 then return print("No such direction") end
 	if dir<4 then -- 0:fwd ||| 1: right ||| 2: back ||| 3:left
 		rotate(dir)
 		if check(1)==false then
 			forward()
 		else -- item in front
-			if force then t.dig() t.attack() forward()
-			else return false -- no can go
+			if force then
+				t.dig()
+				t.attack()
+				move(dir, force)
+			else
+				return false -- no can go
 			end
 		end
 	elseif dir==4 then -- UP
-		if check(0)~=false then
+		if check(0)~=false then -- item in front
 			if force then
 				t.digUp()
 				t.attackUp()
-				-- TODO recheck for enemy or digable!!!!!
+				move(dir, force)
 			else
 				return false -- no can go
 			end
+		else
+			t.up()
+			position[2] = position[2]+1	
 		end
-		t.up()
-		position[2] = position[2]+1	
-	
 	elseif dir==5 then -- DOWN
-		if check(2)~=false then
+		if check(2)~=false then -- item in front
 			if force then
 				t.digDown()
 				t.attackDown()
+				move(dir, force)
 			else
 				return false -- no can go
 			end
+		else
+			t.down()
+			position[2] = position[2]-1	
 		end
-		t.down()
-		position[2] = position[2]-1	
 	end
 	return true
-	-- if item blocks and force==FALSE then return false
 
 end
 
@@ -118,10 +124,14 @@ function goto(x, y, z, force)
 	
 	local falseCnt = 0
 	while (x~=position[0] or y~=position[1] or z~=position[2]) do
-		while moveX()==true do getPos() end
-		while moveY()==true do getPos() end
-		while moveZ()==true do print(moveZ()) end
-		if falseCnt>50 then return print("no can do!") end
+		while moveX()==true do end
+		while moveY()==true do end
+		while moveZ()==true do end
+		while moveY()==true do end
+		while moveZ()==true do end
+		while moveX()==true do end
+
+		if falseCnt>15 then return print("no can do!") end
 		falseCnt = falseCnt+1
 	end
 end
@@ -135,36 +145,58 @@ function moveFlat(dir)
 	t.attack()
 end
 
-function nextItem(item)
-	
-end
 
+function spiralOut(size, force)
+	if size%2==0 then
+		print("size must be non-divideable by 2\n Increase size by one.")
+		size = size + 1
+	end
+	goto(0, math.floor(size/2), position[2], true)
+	local sideLen = 0
+	local sideSwitch = 0
+	
+	
+	while sideLen<size-1 do -- circle from inner to outer
+		for len=0, sideLen do
+			move(0+sideSwitch*2, true)
+		end
+		for len=0, sideLen do
+			move(1+sideSwitch*2, true)
+		end
+		sideSwitch = 1-sideSwitch
+		sideLen = sideLen + 1
+	end
+	
+	for len=0, sideLen-1 do
+		move(0+sideSwitch*2, true)
+	end
+	for len=0, sideLen-1 do
+		move(1+sideSwitch*2, true)
+	end
+
+end
 -- setup --
 setPos(0,0,0)
 
-function dig()
-	for y=0, 20 do
-		move(4, true)
-		move(3, true)
-		move(5, true)
-		move(5, true)
-		move(1, true)
-		move(1, true)
-		move(4, true)
-		move(4, true)
-		move(3, true)
-		move(5, true)
-		move(0, true)
+
+function digForward() -- dig 3x3 in front of robot
+	for y=0, 1 do
+		move(0, true)	move(4, true)	move(3, true)	move(5, true)
+		move(5, true)	move(1, true)	move(1, true)	move(4, true)
+		move(4, true)	move(3, true)	move(5, true)
 	end
 end
 
---goto(6,0,0, true)
---dig()
---goto(12,0,0, true)
---dig()
-goto(-15,-15,0, true)
+function digDown(size, depth)
+	for d=0, depth-1 do
+		move(5, true)
+		spiralOut(size, true)
+	end
+end
 
-getPos()
+-- TODO item & equip functions
 
+digDown(5, 2)
+
+goto(0,0,0, false)
 rotate(0)
-
