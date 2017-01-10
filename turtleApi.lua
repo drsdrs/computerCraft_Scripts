@@ -1,10 +1,20 @@
+----------- TODO
+-- way to remove water
+-- place items in goto funtion
+-- autoequip items search for next if emtpy
+
+
 local t = turtle
 
-local facing = 0
-local position = {}
+facing = 0
+position = { 0,0,0}
 
-function setFace(face) facing = face end
-
+function setRotation(face)
+	facing = face
+end
+function getRotation()
+	return facing
+end
 function getPos()
 	print("X:"..position[0].." Y:"..position[1].." Z:"..position[2])
 end
@@ -137,12 +147,10 @@ function goto(x, y, z, force)
 end
 
 function moveFlat(dir)
-	while move(5)~=false do t.attack() end
+	while move(5)~=false do end
 	while move(dir)==false do
-		t.attack()
 		move(4)
 	end
-	t.attack()
 end
 
 
@@ -151,7 +159,7 @@ function spiralOut(size, force)
 		print("size must be non-divideable by 2\n Increase size by one.")
 		size = size + 1
 	end
-	goto(0, math.floor(size/2), position[2], true)
+	--goto(position[0], position[1]+math.floor(size/2), position[2], true)
 	local sideLen = 0
 	local sideSwitch = 0
 	
@@ -170,17 +178,14 @@ function spiralOut(size, force)
 	for len=0, sideLen-1 do
 		move(0+sideSwitch*2, true)
 	end
-	for len=0, sideLen-1 do
-		move(1+sideSwitch*2, true)
-	end
+
+	goto(position[0]+math.floor(size/2), position[1]-math.floor(size/2), position[2], true)
 
 end
--- setup --
-setPos(0,0,0)
 
 
-function digForward() -- dig 3x3 in front of robot
-	for y=0, 1 do
+function dig3x3(length) -- dig 3x3 in front of robot
+	for y=0, length-1 do
 		move(0, true)	move(4, true)	move(3, true)	move(5, true)
 		move(5, true)	move(1, true)	move(1, true)	move(4, true)
 		move(4, true)	move(3, true)	move(5, true)
@@ -194,9 +199,6 @@ function digDown(size, depth)
 	end
 end
 
--- TODO item & equip functions
+-- setup --
+setPos(0,0,0)
 
-digDown(5, 2)
-
-goto(0,0,0, false)
-rotate(0)
